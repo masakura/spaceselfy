@@ -17,11 +17,26 @@ var app = {};
     navigator.getUserMedia({video: true}, function (stream) {
       $finder.attr('src', window.URL.createObjectURL(stream));
     }, function () {});
+
+    var mapOptions = {
+      center: new google.maps.LatLng(-34.397, 150.644),
+      zoom: 16,
+      disableDefaultUI: true,
+      mapTypeId: google.maps.MapTypeId.SATELLITE
+    };
+    var map = this.map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+
+    navigator.geolocation.watchPosition(function (data) {
+      console.log(data.coords.latitude);
+      console.log(data.coords.longitude);
+      map.setCenter(new google.maps.LatLng(data.coords.latitude, data.coords.longitude));
+    });
   };
 
   Camera.prototype.start = function () {
     var $finder = this.$finder;
-    var $picture = this.$picture;
+    this.$picture.hide();
+    $('#map_canvas').hide();
 
     this.finding = true;
 
@@ -30,13 +45,10 @@ var app = {};
 
       $finder[0].play();
       $finder.show();
-      $picture.hide();
 
-      setTimeout(function () {
-        $('#shutter').width($finder.width());
-        $('#shutter').height($finder.height());
-      }, 100);
-    }, 100);
+      $('#shutter').width($finder.width());
+      $('#shutter').height($finder.height());
+    });
   };
 
   Camera.prototype.stop = function () {
@@ -46,8 +58,8 @@ var app = {};
     this.$finder.hide();
   };
 
-  Camera.prototype.take = function () {
-    console.log('TAKE');
+  Camera.prototype.takeSelfy = function () {
+    console.log('TAKE SELFY');
 
     this.stop();
 
@@ -56,18 +68,20 @@ var app = {};
     this.context.drawImage(this.$finder[0], 0, 0);
     this.$picture.show();
   };
+
+  Camera.prototype.takeEarth = function () {
+    console.log('TAKE EARTH');
+
+    this.stop();
+
+    $('#map_canvas').show();
+    $('#map_canvas').width($('#finder').width());
+    $('#map_canvas').height($('#finder').height());
+  };
 })();
 
 $(document).ready(function () {
   'use strict';
-
-  var mapOptions = {
-    center: new google.maps.LatLng(-34.397, 150.644),
-    zoom: 16,
-    disableDefaultUI: true,
-    mapTypeId: google.maps.MapTypeId.SATELLITE
-  };
-  var map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
   var camera = new app.Camera();
   camera.start();
@@ -77,18 +91,9 @@ $(document).ready(function () {
       $('#shutter-sound')[0].play();
       camera.stop();
 
-      $('#map_canvas').show();
-      $('#map_canvas').width($('#finder').width());
-      $('#map_canvas').height($('#finder').height());
+      camera.takeEarth();
     } else {
       camera.start();
-      $('#map_canvas').hide();
     }
-  });
-
-  navigator.geolocation.watchPosition(function (data) {
-    console.log(data.coords.latitude);
-    console.log(data.coords.longitude);
-    map.setCenter(new google.maps.LatLng(data.coords.latitude, data.coords.longitude));
   });
 });
