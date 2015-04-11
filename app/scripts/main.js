@@ -86,12 +86,19 @@ $(document).ready(function () {
   var camera = new app.Camera();
   camera.start();
 
+  var earth = false;
+
   $('#shutter').on('click', function () {
     if (camera.finding) {
       $('#shutter-sound')[0].play();
       camera.stop();
 
-      camera.takeEarth();
+      if (earth) {
+        camera.takeEarth();
+      } else {
+        camera.takeSelfy();
+      }
+      earth = !earth;
     } else {
       camera.start();
     }
