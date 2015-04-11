@@ -74,6 +74,7 @@ $(document).ready(function () {
 
   $('#shutter').on('click', function () {
     if (camera.finding) {
+      $('#shutter-sound')[0].play();
       camera.stop();
 
       $('#map_canvas').show();
