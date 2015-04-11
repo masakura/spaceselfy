@@ -9,6 +9,41 @@ var app = {};
     navigator.mozGetUserMedia ||
     navigator.msGetuserMedia;
 
+  var Map = app.Map = function () {
+    var mapOptions = {
+      center: new google.maps.LatLng(-34.397, 150.644),
+      zoom: 16,
+      disableDefaultUI: true,
+      mapTypeId: google.maps.MapTypeId.SATELLITE
+    };
+    this.map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+    this.$map = $('#map_canvas');
+
+    var that = this;
+    navigator.geolocation.watchPosition(function (data) {
+      console.log(data.coords.latitude);
+      console.log(data.coords.longitude);
+      that.setCenter(data.coords);
+    });
+  };
+
+  Map.prototype.setCenter = function (coords) {
+    this.map.setCenter(new google.maps.LatLng(coords.latitude, coords.longitude));
+  };
+
+  Map.prototype.setSize = function (width, height) {
+    this.$map.width(width);
+    this.$map.height(height);
+  };
+
+  Map.prototype.show = function () {
+    this.$map.show();
+  };
+
+  Map.prototype.hide = function () {
+    this.$map.hide();
+  };
+
   var Camera = app.Camera = function () {
     this.$picture = $('#picture');
     this.context = this.$picture[0].getContext('2d');
@@ -25,25 +60,14 @@ var app = {};
       success();
     }, function () {});
 
-    var mapOptions = {
-      center: new google.maps.LatLng(-34.397, 150.644),
-      zoom: 16,
-      disableDefaultUI: true,
-      mapTypeId: google.maps.MapTypeId.SATELLITE
-    };
-    var map = this.map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
-
-    navigator.geolocation.watchPosition(function (data) {
-      console.log(data.coords.latitude);
-      console.log(data.coords.longitude);
-      map.setCenter(new google.maps.LatLng(data.coords.latitude, data.coords.longitude));
-    });
+    this.map = new Map();
   };
 
   Camera.prototype.start = function () {
     var $finder = this.$finder;
+    var map = this.map;
     this.$picture.hide();
-    $('#map_canvas').hide();
+    map.hide();
 
     this.finding = true;
 
@@ -57,8 +81,7 @@ var app = {};
       $('#shutter').height($finder.height());
       console.log($finder.height());
 
-      $('#map_canvas').width($finder.width());
-      $('#map_canvas').height($finder.height());
+      map.setSize($finder.width(), $finder.height());
     }, 1500);
   };
 
@@ -85,9 +108,7 @@ var app = {};
 
     this.stop();
 
-    $('#map_canvas').show();
-    $('#map_canvas').width($('#finder').width());
-    $('#map_canvas').height($('#finder').height());
+    this.map.show();
   };
 })();
 
