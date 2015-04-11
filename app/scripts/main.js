@@ -12,10 +12,17 @@ var app = {};
   var Camera = app.Camera = function () {
     this.$picture = $('#picture');
     this.context = this.$picture[0].getContext('2d');
-    var $finder = this.$finder = $('#finder');
+    this.$finder = $('#finder');
+  };
+
+  Camera.prototype.initialize = function (success) {
+    var $finder = this.$finder;
 
     navigator.getUserMedia({video: true}, function (stream) {
+      console.log('VIDEO');
       $finder.attr('src', window.URL.createObjectURL(stream));
+
+      success();
     }, function () {});
 
     var mapOptions = {
@@ -40,15 +47,19 @@ var app = {};
 
     this.finding = true;
 
+    console.log('PLAY');
+
+    $finder.show();
+    $finder[0].play();
+
     setTimeout(function () {
-      console.log('PLAY');
-
-      $finder[0].play();
-      $finder.show();
-
       $('#shutter').width($finder.width());
       $('#shutter').height($finder.height());
-    });
+      console.log($finder.height());
+
+      $('#map_canvas').width($finder.width());
+      $('#map_canvas').height($finder.height());
+    }, 1500);
   };
 
   Camera.prototype.stop = function () {
@@ -84,7 +95,9 @@ $(document).ready(function () {
   'use strict';
 
   var camera = new app.Camera();
-  camera.start();
+  camera.initialize(function () {
+    camera.start();
+  });
 
   var earth = false;
 
