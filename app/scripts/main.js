@@ -23,6 +23,8 @@ var app = {};
     var $finder = this.$finder;
     var $picture = this.$picture;
 
+    this.finding = true;
+
     setTimeout(function () {
       console.log('PLAY');
 
@@ -35,11 +37,17 @@ var app = {};
     }, 100);
   };
 
+  Camera.prototype.stop = function () {
+    this.finding = false;
+
+    this.$finder[0].pause();
+    this.$finder.hide();
+  };
+
   Camera.prototype.take = function () {
     console.log('TAKE');
 
-    this.$finder.hide();
-    this.$finder[0].pause();
+    this.stop();
 
     this.$picture[0].width = this.$finder[0].videoWidth;
     this.$picture[0].height = this.$finder[0].videoHeight;
@@ -53,23 +61,21 @@ $(document).ready(function () {
 
   var camera = new app.Camera();
   camera.start();
-  var finding = true;
 
   $('#shutter').on('click', function () {
-    if (finding) {
-      camera.take();
-      finding = false;
+    if (camera.finding) {
+      camera.stop();
     } else {
       camera.start();
-      finding = true;
     }
   });
 
+  $('#map_canvas').hide();
   var mapOptions = {
     center: new google.maps.LatLng(-34.397, 150.644),
     zoom: 8,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
+    disableDefaultUI: true,
+    mapTypeId: google.maps.MapTypeId.SATELLITE
   };
-  var map = new google.maps.Map(document.getElementById("map_canvas"),
-                                mapOptions);
+  var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 });
