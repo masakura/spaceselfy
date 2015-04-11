@@ -9,17 +9,24 @@ var app = {};
     navigator.mozGetUserMedia ||
     navigator.msGetuserMedia;
 
-  var Map = app.Map = function () {
+  var Map = app.Map = function (width, height) {
+    this.$map = $('#map_canvas');
+
+    this.setSize(width, height);
+
     var mapOptions = {
       center: new google.maps.LatLng(-34.397, 150.644),
       zoom: 16,
       disableDefaultUI: true,
       mapTypeId: google.maps.MapTypeId.SATELLITE
     };
-    this.map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
-    this.$map = $('#map_canvas');
 
     var that = this;
+
+    setTimeout(function () {
+      that.map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+    });
+
     navigator.geolocation.watchPosition(function (data) {
       console.log(data.coords.latitude);
       console.log(data.coords.longitude);
@@ -41,7 +48,7 @@ var app = {};
   };
 
   Map.prototype.hide = function () {
-    this.$map.hide();
+    // 裏に回すだけ!
   };
 
   var Camera = app.Camera = function () {
@@ -56,11 +63,17 @@ var app = {};
     navigator.getUserMedia({video: true}, function (stream) {
       console.log('VIDEO');
       $finder.attr('src', window.URL.createObjectURL(stream));
-
-      success();
     }, function () {});
 
-    this.map = new Map();
+    var that = this;
+
+    $finder.show();
+    $finder[0].play();
+    $finder.on('loadeddata', function () {
+      that.map = new Map($finder.width(), $finder.height());
+
+      success();
+    });
   };
 
   Camera.prototype.start = function () {
@@ -82,7 +95,7 @@ var app = {};
       console.log($finder.height());
 
       map.setSize($finder.width(), $finder.height());
-    }, 1500);
+    });
   };
 
   Camera.prototype.stop = function () {
