@@ -21,9 +21,14 @@ var app = {};
 
   Camera.prototype.start = function () {
     var $finder = this.$finder;
+    var $picture = this.$picture;
 
     setTimeout(function () {
+      console.log('PLAY');
+
       $finder[0].play();
+      $finder.show();
+      $picture.hide();
 
       $('#shutter').width($finder.width());
       $('#shutter').height($finder.height());
@@ -31,6 +36,8 @@ var app = {};
   };
 
   Camera.prototype.take = function () {
+    console.log('TAKE');
+
     this.$finder.hide();
     this.$finder[0].pause();
 
@@ -46,8 +53,15 @@ $(document).ready(function () {
 
   var camera = new app.Camera();
   camera.start();
+  var finding = true;
 
   $('#shutter').on('click', function () {
-    camera.take();
+    if (finding) {
+      camera.take();
+      finding = false;
+    } else {
+      camera.start();
+      finding = true;
+    }
   });
 });
