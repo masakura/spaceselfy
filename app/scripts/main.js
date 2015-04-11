@@ -10,22 +10,34 @@ var app = {};
     navigator.msGetuserMedia;
 
   var Camera = app.Camera = function () {
+    this.$picture = $('#picture');
+    this.context = this.$picture[0].getContext('2d');
+    var $finder = this.$finder = $('#finder');
+
+    navigator.getUserMedia({video: true}, function (stream) {
+      $finder.attr('src', window.URL.createObjectURL(stream));
+    }, function () {});
   };
 
   Camera.prototype.start = function () {
-    navigator.getUserMedia({video: true}, function (stream) {
-      var $finder = $('#finder');
-      $finder.attr('src', window.URL.createObjectURL(stream));
-      setTimeout(function () {
-        $finder[0].play();
+    var $finder = this.$finder;
 
-        $('#shutter').width($finder.width());
-        $('#shutter').height($finder.height());
-        console.log($finder.height());
-        console.log($finder.innerHeight());
-        console.log($finder.outerHeight());
-      }, 100);
-    }, function () {});
+    setTimeout(function () {
+      $finder[0].play();
+
+      $('#shutter').width($finder.width());
+      $('#shutter').height($finder.height());
+    }, 100);
+  };
+
+  Camera.prototype.take = function () {
+    this.$finder.hide();
+    this.$finder[0].pause();
+
+    this.$picture[0].width = this.$finder[0].videoWidth;
+    this.$picture[0].height = this.$finder[0].videoHeight;
+    this.context.drawImage(this.$finder[0], 0, 0);
+    this.$picture.show();
   };
 })();
 
@@ -34,4 +46,8 @@ $(document).ready(function () {
 
   var camera = new app.Camera();
   camera.start();
+
+  $('#shutter').on('click', function () {
+    camera.take();
+  });
 });
