@@ -61,6 +61,14 @@ var app = {};
 $(document).ready(function () {
   'use strict';
 
+  var mapOptions = {
+    center: new google.maps.LatLng(-34.397, 150.644),
+    zoom: 16,
+    disableDefaultUI: true,
+    mapTypeId: google.maps.MapTypeId.SATELLITE
+  };
+  var map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+
   var camera = new app.Camera();
   camera.start();
 
@@ -76,14 +84,6 @@ $(document).ready(function () {
       $('#map_canvas').hide();
     }
   });
-
-  var mapOptions = {
-    center: new google.maps.LatLng(-34.397, 150.644),
-    zoom: 16,
-    disableDefaultUI: true,
-    mapTypeId: google.maps.MapTypeId.SATELLITE
-  };
-  var map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
   navigator.geolocation.watchPosition(function (data) {
     console.log(data.coords.latitude);
