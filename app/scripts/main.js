@@ -32,8 +32,10 @@ var app = {};
       $finder.show();
       $picture.hide();
 
-      $('#shutter').width($finder.width());
-      $('#shutter').height($finder.height());
+      setTimeout(function () {
+        $('#shutter').width($finder.width());
+        $('#shutter').height($finder.height());
+      }, 100);
     }, 100);
   };
 
@@ -65,17 +67,27 @@ $(document).ready(function () {
   $('#shutter').on('click', function () {
     if (camera.finding) {
       camera.stop();
+
+      $('#map_canvas').show();
+      $('#map_canvas').width($('#finder').width());
+      $('#map_canvas').height($('#finder').height());
     } else {
       camera.start();
+      $('#map_canvas').hide();
     }
   });
 
-  $('#map_canvas').hide();
   var mapOptions = {
     center: new google.maps.LatLng(-34.397, 150.644),
-    zoom: 8,
+    zoom: 16,
     disableDefaultUI: true,
     mapTypeId: google.maps.MapTypeId.SATELLITE
   };
-  var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+  var map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+
+  navigator.geolocation.watchPosition(function (data) {
+    console.log(data.coords.latitude);
+    console.log(data.coords.longitude);
+    map.setCenter(new google.maps.LatLng(data.coords.latitude, data.coords.longitude));
+  });
 });
